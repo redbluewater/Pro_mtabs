@@ -1,8 +1,7 @@
 #make one py file to plot up a pathway
-#modified from code used in NB projecct
+#modified from code use in NB projecct
 #KLongnecker, 17 April 2017
 import pandas as pd
-import numpy as np
 import os
 import re
 import matplotlib.pyplot as plt
@@ -17,7 +16,7 @@ from IPython.display import Image, HTML
    
 from IPython.core.debugger import Tracer 
     
-def gatherDetails(usePathway,folderName,useCO,CO_values):
+def gatherDetails(usePathway,folderName,CO_fromTSQ,CO_values):
     #check if the directories exist, one for pathway files
     if not os.path.exists(folderName):
         os.makedirs(folderName)
@@ -32,39 +31,34 @@ def gatherDetails(usePathway,folderName,useCO,CO_values):
     #have to track genes and compounds differently for the biopython plotting later on 
     setG = set(genes)
     setC = set(compounds)
-    setT = set(useCO)
+    setT = set(CO_fromTSQ)
     #figure out which compounds are in the TSQ data...
     intCompounds = setC.intersection(setT)
         
     ## plot the pathway map for this pathway, get details from KEGG for plotting
     ###ideally I will make the colors a function of amount
-    #useColors = pal.cmocean.sequential.Phase_20.hex_colors
-    useColors = pal.colorbrewer.diverging.PRGn_11.hex_colors
-    #useColors = pal.colorbrewer.diverging.RdYlBu_11.hex_colors
-    
-    #modify from the colordots.m code
-    colormin = CO_values.min()
-    colormax = CO_values.max()
-    colordiff = colormax - colormin
-    thecolor = ((CO_values - colormin)/(colordiff)*(len(useColors)-1) + 1).round()
-
+    useColors = pal.colorbrewer.qualitative.Set1_4.hex_colors
     size = 20 #turns out I can increase the size of the compounds in the plots
 
-    pathway = KGML_parser.read(kegg_get(usePathway, "kgml")) #no choice in gene color: green
+    #useColors.insert(0,'#f7f7f7') ## insert white at beginning
+    pathway = KGML_parser.read(kegg_get(usePathway, "kgml"))
+    for element in pathway.orthologs:
+        #print element.name
+        for graphic in element.graphics: #[only color if in Prochlorococcus]
+            tg = element.name[3:9] #skip over the 'ko:'
+            if (tg in setG):
+                #in the pathway for Pro
+                graphic.bgcolor = useColors[2] #
  
-    # Change the colours of compounds
-    for element in pathway.compounds:
-        for graphic in element.graphics:
-            tc = element.name[4:10] #skip over the 'cpd:'
-            if (tc in intCompounds):
-                #in the pathway, set the color
-                tempColor = thecolor.loc[tc]
-                if np.isnan(tempColor): #set the zeros to orange
-                    graphic.bgcolor = '#e34a33' #orange 
-                else: 
-                    graphic.bgcolor = useColors[int(tempColor)-1] #sequential color scale
-                graphic.width = size
-                graphic.height = size
+        # Change the colours of compounds (mostly same as genes
+        for element in pathway.compounds:
+            for graphic in element.graphics:
+                tc = element.name[4:10] #skip over the 'cpd:'
+                if (tc in intCompounds):
+                    #in the pathway AND in the set for this particular K means group
+                    graphic.bgcolor = useColors[3] #
+                    graphic.width = size
+                    graphic.height = size
                         
     canvas = KGMLCanvas(pathway, import_imagemap=True)
     pdfName = 'mapWithColors_' + str(usePathway) + '.pdf'
