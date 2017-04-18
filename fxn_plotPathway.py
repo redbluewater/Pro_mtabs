@@ -14,6 +14,8 @@ from Bio.KEGG.KGML import KGML_parser
 from Bio.Graphics.KGML_vis import KGMLCanvas
 from IPython.display import Image, HTML
    
+from IPython.core.debugger import Tracer 
+    
 def gatherDetails(usePathway,folderName,CO_fromTSQ,CO_values):
     #check if the directories exist, one for pathway files
     if not os.path.exists(folderName):
@@ -46,7 +48,7 @@ def gatherDetails(usePathway,folderName,CO_fromTSQ,CO_values):
             tg = element.name[3:9] #skip over the 'ko:'
             if (tg in setG):
                 #in the pathway for Pro
-                graphic.bgcolor = useColors[1] #
+                graphic.bgcolor = useColors[2] #
  
         # Change the colours of compounds (mostly same as genes
         for element in pathway.compounds:
@@ -54,12 +56,13 @@ def gatherDetails(usePathway,folderName,CO_fromTSQ,CO_values):
                 tc = element.name[4:10] #skip over the 'cpd:'
                 if (tc in intCompounds):
                     #in the pathway AND in the set for this particular K means group
-                    graphic.bgcolor = useColors[2] #
+                    graphic.bgcolor = useColors[3] #
                     graphic.width = size
                     graphic.height = size
                         
-    canvas = KGMLCanvas(usePathway, import_imagemap=True)
+    canvas = KGMLCanvas(pathway, import_imagemap=True)
     pdfName = 'mapWithColors_' + str(usePathway) + '.pdf'
+    #Tracer()()
     canvas.draw(folderName + '/' + pdfName)
     pdfName = None #empty it in case that is where I am having issues
 
