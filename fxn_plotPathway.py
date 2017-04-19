@@ -17,60 +17,132 @@ from IPython.display import Image, HTML
    
 from IPython.core.debugger import Tracer 
     
-def gatherDetails(usePathway,folderName,useCO,CO_values):
+def gatherDetails(enterPathway,folderName,useCO,CO_values):
     #check if the directories exist, one for pathway files
     if not os.path.exists(folderName):
         os.makedirs(folderName)
     #else:
-        #raise ValueError('Krista - be careful, this folder already exists')
+        #raise ValueError('Be careful, this folder already exists')
                    
-    #for item in trimPath: #searching within one pathway at a time
     #only one pathway at a time
+    setKeep = 1
+    try:
+        kegg_get(enterPathway).read()
+    except:
+        #use the ko map if there is nothing species specific
+        usePathway = 'ko' + enterPathway[3:8]
+        setKeep = 0
+        
+    if setKeep:
+        usePathway = enterPathway
+
+    #get the compounds and genes for this pathway     
     genes = getKfrom_ko(usePathway)
     compounds = getCfrom_ko(usePathway)
-
-    #have to track genes and compounds differently for the biopython plotting later on 
+    
+    #figure out which ones I have data for...
     setG = set(genes)
     setC = set(compounds)
     setT = set(useCO)
-    #figure out which compounds are in the TSQ data...
     intCompounds = setC.intersection(setT)
         
-    ## plot the pathway map for this pathway, get details from KEGG for plotting
-    ###ideally I will make the colors a function of amount
-    #useColors = pal.cmocean.sequential.Phase_20.hex_colors
-    useColors = pal.colorbrewer.diverging.PRGn_11.hex_colors
+    ## plot the pathway map for this pathway, get details from KEGG for plotting (%must be at least 4 colors)
+    useColors = pal.colorbrewer.diverging.PuOr_4.hex_colors
     #useColors = pal.colorbrewer.diverging.RdYlBu_11.hex_colors
     
-    #modify from the colordots.m code
-    colormin = CO_values.min()
-    colormax = CO_values.max()
-    colordiff = colormax - colormin
-    thecolor = ((CO_values - colormin)/(colordiff)*(len(useColors)-1) + 1).round()
+    #set the color of the mtab based on its value, only scale the values from this particular pathway
+    useCOsubset = CO_values.loc[intCompounds]
+    cmin = useCOsubset.min() #find min and max...ignore NaN and inf for the moment
+    cmax = useCOsubset.replace([np.inf],np.nan).dropna(how = 'all').max()
+    
+    size = 20 #increase the size of the compounds in the plots
+        
+    #can have all zeros...
+    if sum(useCOsubset.dropna())==0:
+        pass
+        #print('No measured metabolites in pathway ' + usePathway)
+    elif len(useCOsubset.value_counts())==1:
+        #only two color options: yes/no
+        dummy = useCOsubset.copy(deep = True)
+        dummy.replace([np.inf],np.nan,inplace = True)
+        for idx,item in enumerate(useCOsubset):
+            if np.isnan(item):
+                useCOsubset.iloc[idx] = int(0)
+            else:
+                useCOsubset.iloc[idx] = int(1) 
+        
+        #go get the pathway information and customize the plot
+        pathway = KGML_parser.read(kegg_get(usePathway, "kgml")) #no choice in gene color: green
 
-    size = 20 #turns out I can increase the size of the compounds in the plots
+        # Change the colors of compounds
+        for element in pathway.compounds:
+            for graphic in element.graphics:
+                tc = element.name[4:10] #skip over the 'cpd:'
+                if (tc in intCompounds):
+                    #in the pathway, set the color
+                    tempColor = useCOsubset.loc[tc]
+                    graphic.bgcolor = useColors[int(tempColor)] 
+                    graphic.width = size
+                    graphic.height = size
 
-    pathway = KGML_parser.read(kegg_get(usePathway, "kgml")) #no choice in gene color: green
- 
-    # Change the colours of compounds
-    for element in pathway.compounds:
-        for graphic in element.graphics:
-            tc = element.name[4:10] #skip over the 'cpd:'
-            if (tc in intCompounds):
-                #in the pathway, set the color
-                tempColor = thecolor.loc[tc]
-                if np.isnan(tempColor): #set the zeros to orange
-                    graphic.bgcolor = '#e34a33' #orange 
-                else: 
-                    graphic.bgcolor = useColors[int(tempColor)-1] #sequential color scale
-                graphic.width = size
-                graphic.height = size
-                        
-    canvas = KGMLCanvas(pathway, import_imagemap=True)
-    pdfName = 'mapWithColors_' + str(usePathway) + '.pdf'
-    #Tracer()()
-    canvas.draw(folderName + '/' + pdfName)
-    pdfName = None #empty it in case that is where I am having issues
+        canvas = KGMLCanvas(pathway, import_imagemap=True)
+        pdfName = 'mapWithColors_' + str(usePathway) + '.pdf'
+        canvas.draw(folderName + '/' + pdfName)
+        pdfName = None #empty it in case that is where I am having issues         
+        
+    else:
+        dummy = useCOsubset.copy(deep = True)
+        dummy.replace([np.inf],np.nan,inplace = True)
+        for idx,item in enumerate(useCOsubset):
+            if np.isnan(item):
+                useCOsubset.iloc[idx] = 0
+            elif np.isinf(item):
+                useCOsubset.iloc[idx] = 10*cmax #make inf 10x the biggest value
+
+        #now, find cmax again...use that downstream
+        cmax = useCOsubset.replace([np.inf],np.nan).dropna(how = 'all').max()
+
+        #use histogram to make the bins (complete hack)
+        a,bin_edges = np.histogram(useCOsubset,bins = len(useColors)-3,range = (cmin,cmax))
+        #now...put zero at beginning and inf at end
+        #BUT - can actually have cases with values for all metabolites (novel concept)
+        try:
+            nz = useCOsubset.value_counts()[0] #count the number of zeros
+            a = np.insert(a,0,nz)
+            bin_edges = np.insert(bin_edges,0,0)
+        except:
+            pass
+            
+        try:
+            nm = useCOsubset.value_counts()[cmax]
+            a = np.append(a,nm)
+            bin_edges = np.append(bin_edges,cmax)
+        except:
+            pass
+
+        #then find the index for each number...this will be the index into useColors
+        useIdx = np.digitize(useCOsubset,bin_edges)
+        color_df = pd.DataFrame({'mtab': useCOsubset,'idx':useIdx})
+
+        #go get the pathway information and customize the plot
+        pathway = KGML_parser.read(kegg_get(usePathway, "kgml")) #no choice in gene color: green
+
+        # Change the colors of compounds
+        for element in pathway.compounds:
+            for graphic in element.graphics:
+                tc = element.name[4:10] #skip over the 'cpd:'
+                if (tc in intCompounds):
+                    #in the pathway, set the color
+                    tempColor = color_df.loc[tc,'idx']
+                    graphic.bgcolor = useColors[int(tempColor)-1] 
+                    graphic.width = size
+                    graphic.height = size
+
+        canvas = KGMLCanvas(pathway, import_imagemap=True)
+        pdfName = 'mapWithColors_' + str(usePathway) + '.pdf'
+        #Tracer()()
+        canvas.draw(folderName + '/' + pdfName)
+        pdfName = None #empty it in case that is where I am having issues
 
 
 #set up a function to get the list of K orthologues for a given pathway (must be defined as ko00140 NOT map00140)
