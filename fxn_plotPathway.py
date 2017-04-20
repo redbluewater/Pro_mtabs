@@ -29,9 +29,13 @@ def gatherDetails(enterPathway,folderName,useCO,CO_values):
     try:
         kegg_get(enterPathway).read()
     except:
-        #use the ko map if there is nothing species specific
+        #use the ko map if there is nothing species specific...this can also fail...
         usePathway = 'ko' + enterPathway[3:8]
         setKeep = 0
+        try:
+            kegg_get(usePathway).read()
+        except:
+            pass
         
     if setKeep:
         usePathway = enterPathway

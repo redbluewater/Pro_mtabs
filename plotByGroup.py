@@ -10,6 +10,7 @@ from Bio.KEGG.KGML import KGML_parser
 from Bio.Graphics.KGML_vis import KGMLCanvas
 from IPython.display import Image, HTML
 import os
+import pdb
 
 from IPython.core.debugger import Tracer
 #os._exit(0)
@@ -24,8 +25,31 @@ def plotGroup(oneGroup,prunedBRITE,useCO,mtabPruned,oneStrain):
 
     gatherGroup = pd.DataFrame()
     for one in onePath_ann:
-        #Tracer()()
-        mCpds = set(getCfrom_ko(one))
+        #print(one)
+        #not all pathways annotated in Prochlorococcus
+        setKeep = 1
+        try:
+            kegg_get(one).read()
+        except:
+            #use the ko map if there is nothing species specific
+            usePathway = 'ko' + one[3:8]
+            setKeep = 0
+            try:
+                kegg_get(usePathway).read()
+                #pdb.set_trace()
+        
+            except:
+                pass
+            
+        if setKeep:
+            usePathway = one
+        
+        try:
+            mCpds = set(getCfrom_ko(usePathway))
+        except:
+            #no ko pathway either
+            break
+                          
         ProData= set(useCO)
         handh = mCpds.intersection(ProData)
         for cpd in handh:
@@ -33,15 +57,20 @@ def plotGroup(oneGroup,prunedBRITE,useCO,mtabPruned,oneStrain):
             tm = mtabPruned.loc[cpd,:]
             gatherGroup = gatherGroup.append(tm)
 
-    hfont = {'fontname':'Palatino'}
+    #hfont = {'fontname':'Palatino'}
     plt.title(oneGroup)
-    plt.xlabel('xlabel', **hfont)
+    plt.xlabel('xlabel')
     plt.pcolor(gatherGroup,cmap = 'PRGn')
-    plt.yticks(np.arange(0.5, len(gatherGroup.index), 1), gatherGroup.index,fontsize = 5)
+    plt.yticks(np.arange(0.5, len(gatherGroup.index), 1), gatherGroup.index,fontsize = 8)
     #plt.xticks(np.arange(0.5, len(gatherGroup.columns), 1), gatherGroup.columns,rotation = 45)
     plt.xticks(np.arange(0.5,(len(list(mtabPruned)) + 0.1),1), gatherGroup.columns,rotation = 90)
 
+    #plt.show()
+    fig = plt.gcf()
+    fig.set_size_inches(18.5, 13)
+    fig.savefig(oneGroup + '.png', dpi=100)
     plt.show()
+
     
 #set up a function to get the list of compounds for a given pathway (must be defined as ko00140 NOT map00140)
 def getCfrom_ko(ko_id):
