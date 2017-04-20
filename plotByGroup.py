@@ -71,6 +71,7 @@ def plotGroup(oneGroup,prunedBRITE,useCO,mtabPruned,oneStrain):
     fig = plt.gcf()
     fig.set_size_inches(18.5, 13)
     fig.savefig(oneGroup + '.png', dpi=100)
+    plt.colorbar()
     plt.show()
 
     
