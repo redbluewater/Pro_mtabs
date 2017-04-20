@@ -36,8 +36,6 @@ def plotGroup(oneGroup,prunedBRITE,useCO,mtabPruned,oneStrain):
             setKeep = 0
             try:
                 kegg_get(usePathway).read()
-                #pdb.set_trace()
-        
             except:
                 pass
             
@@ -54,8 +52,12 @@ def plotGroup(oneGroup,prunedBRITE,useCO,mtabPruned,oneStrain):
         handh = mCpds.intersection(ProData)
         for cpd in handh:
             #print(cpd)
+            #pdb.set_trace()
             tm = mtabPruned.loc[cpd,:]
-            gatherGroup = gatherGroup.append(tm)
+            if (cpd in gatherGroup.index): 
+                pass
+            else: #only add the mtab if it is new...can have mtabs in multiple pathways
+                gatherGroup = gatherGroup.append(tm)
 
     #hfont = {'fontname':'Palatino'}
     plt.title(oneGroup)
