@@ -145,10 +145,17 @@ def plotGroup_cluster(oneGroup,prunedBRITE,useCO,mtabPruned,oneStrain,scaleMM):
         plt.title(oneGroup)
         fig = plt.gcf()
         fig.set_size_inches(18.5, 13)
-        fig.savefig(oneGroup + '.png', dpi=100)
+        g.savefig(oneGroup + '.png', dpi=100)
         plt.show() #this will suppress all the rows of 'None'
     else:
         print(oneGroup + ': has no metabolites')
+        
+    #for item in onePath:
+        #print(kegg_list('ko' + item).read())
+    
+    for item in gatherGroup.index.sort_values():
+        print(kegg_list(item).read())
+          
 
 #set up a function to get the list of compounds for a given pathway (must be defined as ko00140 NOT map00140)
 def getCfrom_ko(ko_id):
