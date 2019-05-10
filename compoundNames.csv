@@ -1,0 +1,94 @@
+KEGG,mtabNames
+C00196,2-3-dihydroxybenzoic acid
+C19675,2-3-dihydroxypropane1sulfonate
+C08276,3-mercapto proprionate
+C00141,3-methyl-2-oxobutanoic acid
+C00671,3-methyl-2-oxopentanoic acid
+C00568,4-aminobenzoic acid
+C00156,4-hydroxybenzoic acid
+C00233,4-methyl-2-oxopentanoic acid
+C00170,5'-Deoxy-5'(methylthio)adenosine
+C20267,AmMP
+C00352,D-glucosamine 6-phosphate
+C04022,DMSP
+C00334,GABA
+C01279,HMP
+C00004,NAD pos
+C00134,Putrescine
+0,acetyltaurine
+C00147,adenine pos
+C00212,adenosine
+C00020,adenosine 5'-monophosphate pos
+C00026,alpha-ketoglutaric acid
+C00062,arginine
+C00049,aspartic acid pos
+C00719,betaine
+C00120,biotin neg
+C07481,caffeine
+C01674,chitobiose pos
+0,chitotriose
+C00114,choline
+C03557,ciliatine
+C00158,citric acid
+C00327,citrulline
+C08230,cyanocobalamin
+C00380,cytosine
+C01909,desthiobiotin pos
+C00111,dihydroxyacetone phosphate
+C06231,ectoine
+C00504,folic acid neg
+C06454,fosfomycin
+C00122,fumaric acid
+C00092,glucose6P
+C00025,glutamic acid
+C00064,glutamine
+C01705,glyphosate
+C00242,guanine
+C00387,guanosine pos
+C06767,hemin II
+C00954,indole 3-acetic acid
+C00294,inosine
+C00130,inosine 5'-monophosphate neg
+C00407,isoleucine
+C00097,l-cysteine
+C00051,l-glutathione
+C00328,l-kynurenine
+C00123,l-leucine
+C00082,l-tyrosine
+C00149,malic acid
+C00073,methionine
+C06470,muramic acid
+C00140,n-acetyl glucosamine
+C00624,n-acetyl glutamic acid
+C02713,n-acetyl muramic acid pos
+C00077,ornithine
+C00295,orotic acid
+C00864,pantothenic acid neg
+C00079,phenylalanine
+C00074,phosphoenolpyruvate
+C05786,phycocyanobilin
+C00148,proline
+C00314,pyridoxine
+C00255,riboflavin
+0,s-(1-2-dicarboxyethyl)glutathione pos
+C00021,s-(5'-adenosyl)-L-homocysteine pos
+C00019,s-adenosyl-L-methionine
+C00213,sarcosine
+C00065,serine
+C00093,sn-glycerol 3-phosphate pos 
+C05122,sodium taurocholate
+C00315,spermidine
+C00042,succinic acid
+C10833,syringic acid
+C00245,taurine
+C00378,thiamine
+C01081,thiamine monophosphate
+C00188,threonine (isom. homoserine)
+C00214,thymidine
+C00398,tryptamine
+C00078,tryptophan
+C00106,uracil pos
+C00105,uridine 5-monophosphate pos
+C00183,valine
+C00385,xanthine pos
+C01762,xanthosine neg

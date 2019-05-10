@@ -1,0 +1,22 @@
+just moving the file for the measured/expected
+Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	new file:   measured_v_expected.ipynb
+#
+# Changes not staged for commit:
+#	modified:   .ipynb_checkpoints/ProKEGG-checkpoint.ipynb
+#	modified:   ProKEGG.ipynb
+#	modified:   Pro_pathways.png
+#	modified:   find_metabolites_by_strain.ipynb
+#
+# Untracked files:
+#	.ipynb_checkpoints/measured_v_expected-checkpoint.ipynb
+#	allMeasured.csv
+#	compoundNames.csv
+#	next.csv
+#	not0801.csv
+#
